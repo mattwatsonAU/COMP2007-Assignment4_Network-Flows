@@ -1,0 +1,85 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{geometry}
+\geometry{a4paper, portrait, margin=0.4in}
+
+\title{COMP2007 - Assignment 4}
+\author{Matthew Watson\\ SID: 440267858}
+\date{}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+	\item \textbf{Consider the case when $Y=3,k=2,\delta_1 =\delta_2 =2$ and $\delta_3 =1$}
+	\begin{enumerate}
+		\item \textbf{Formulate the problem of determining a schedule with maximum number of Christmas
+trees sold as a network flow problem.}\\
+\\
+		\begin{tikzpicture}
+				\node[circle,draw, minimum size=1cm] (s) at  (0,0) {s};
+				\node[circle,draw, minimum size=1cm] (k1) at  (2,4)  {k1};
+				\node[circle,draw, minimum size=1cm] (k2) at  (2,-4)  {k2};
+				\node[circle,draw, minimum size=1cm] (w11) at  (5,8) {$w_{1,1}$};
+				\node[circle,draw, minimum size=1cm] (w12) at  (5,5)  {$w_{1,2}$};
+				\node[circle,draw, minimum size=1cm] (w13) at  (5,2)  {$w_{1,3}$};
+				\node[circle,draw, minimum size=1cm] (w21) at  (5,-2) {$w_{2,1}$};
+				\node[circle,draw, minimum size=1cm] (w22) at  (5,-5)  {$w_{2,2}$};
+				\node[circle,draw, minimum size=1cm] (w23) at  (5,-8)  {$w_{2,3}$};
+				\node[circle,draw, minimum size=1cm] (y1) at  (14,2)  {$y_1$};
+				\node[circle,draw, minimum size=1cm] (y2) at  (14,0)  {$y_2$};
+				\node[circle,draw, minimum size=1cm] (y3) at  (14,-2)  {$y_3$};
+				\node[circle,draw, minimum size=1cm] (t) at  (17,0)  {$t$};
+				\draw (s) -- (k1) node [sloped,midway, fill=white] {$\tau_1=12$};
+				\draw (s) -- (k2) node [sloped,midway, fill=white] {$\tau_2=8$};
+				\draw (k1) -- (w11) node [sloped,midway, fill=white] {$w_{1,1}=4$};
+				\draw (k1) -- (w12) node [sloped,midway, fill=white] {$w_{1,2}=4$};
+				\draw (k1) -- (w13) node [sloped,midway, fill=white] {$w_{1,3}=2$};
+				\draw (k2) -- (w21) node [sloped,midway, fill=white] {$w_{2,1}=3$};
+				\draw (k2) -- (w22) node [sloped,midway, fill=white] {$w_{2,2}=3$};
+				\draw (k2) -- (w23) node [sloped,midway, fill=white] {$w_{2,3}=3$};
+				\draw (w11) -- (y1) node [sloped,midway, fill=white] {$\delta_1=2,w_{1,1}=4$};
+				\draw (w11) -- (y2) node [sloped,midway, fill=white] {$\delta_1=1,w_{1,1}=4$};
+				\draw (w12) -- (y2) node [sloped,near start, fill=white] {$\delta_2=2,w_{1,2}=4$};
+				\draw (w12) -- (y3) node [sloped,midway, fill=white] {$\delta_2=1,w_{1,2}=4$};
+				\draw (w13) -- (y3) node [sloped,near start, fill=white] {$\delta_3=1,w_{1,3}=2$};
+				\draw (w21) -- (y1) node [sloped,near start, fill=white] {$\delta_1=2,w_{2,1}=3$};
+				\draw (w21) -- (y2) node [sloped,midway, fill=white] {$\delta_1,w_{2,1}=3$};
+				\draw (w22) -- (y2) node [sloped,near start, fill=white] {$\delta_2=2,w_{2,2}=3$};
+				\draw (w22) -- (y3) node [sloped,midway, fill=white] {$\delta_2=1,w_{2,2}=3$};
+				\draw (w23) -- (y3) node [sloped,near start, fill=white] {$\delta_3=1,w_{2,3}=3$};
+				\draw (y1) -- (t) node [sloped,midway, fill=white] {$u_1=5$};
+				\draw (y2) -- (t) node [sloped,midway, fill=white] {$u_2=10$};
+				\draw (y3) -- (t) node [sloped,midway, fill=white] {$u_2=5$};
+			\end{tikzpicture}\\
+			\newpage
+		\item \textbf{Argue why your algorithm is correct.}\\
+		In this case, we have several limitations, these are:
+		\begin{itemize}
+		\item $k$: the number of forests, in this case, 2.
+		\item $Y$: the number of years, in this case, 3.
+		\item $\tau_i$: the maximum number of trees that can be harvested from forest $i$ over the entire Y years. In this case, we say $\tau_1=12$ and $\tau_2=8$, meaning that we are restricted over the entire period to harvested 12 trees from forest 1 and 8 trees from forest 2.
+		\item $w_{k,Y}$: the maximum number of trees that can be harvested from forest $k$ in year $Y$. In this case we have $w_{1,1}=w_{1,2}=4, w_{1,3}=2$ and $w_{2,1}=w_{2,2}=w_{2,3}=3$.
+		\item $\delta_j$: the lifetime of a tree harvested in year $j$, such that $\delta_1=3$ means a tree harvested in year 1 can only be sold in year 1,2 or 3. In this case, we have $\delta_1 =\delta_2 =2$ and $\delta_3 =1$
+		\item $u_i$: The maximum number of trees that can be sold in year $i$. This does necessarily restrict the number of trees harvested, however, given for that year the $\delta_i$ value is greater than 1. In this case, we have $u_1=u_2=5$ and $u_2=10$.
+		\end{itemize}
+	\end{enumerate}
+	\item \textbf{Generalise your solution to k forests, Y years and variable tree lifespans.}
+	\begin{enumerate}
+		\item \textbf{Formulate the problem of determining a schedule with maximum profit (maximum num- ber of Christmas trees sold) as a network flow problem for a given $Y, k$ and $\delta1,...,\delta Y$ .}\\
+		Meme
+		\item \textbf{Argue why your formulation is correct.}\\
+		Meme	
+		\item \textbf{Prove an upper bound on the time complexity of your algorithm.}\\
+		Meme
+		\end{enumerate}
+
+\end{enumerate}
+\end{document}  \documentclass[fontsize=12pt, paper=a4]{scrlttr2}
+
