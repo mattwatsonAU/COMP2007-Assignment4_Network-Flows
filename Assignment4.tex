@@ -6,7 +6,7 @@
 \usepackage{amssymb}
 \usepackage{enumitem}
 \usepackage{tikz}
-\geometry{a4paper, portrait, margin=0.4in}
+\geometry{a4paper, portrait, margin=0.5in}
 
 \title{COMP2007 - Assignment 4}
 \author{Matthew Watson\\ SID: 440267858}
@@ -23,6 +23,9 @@ trees sold as a network flow problem.}\\
 
 		$Y$=year\\
 		$K$=forest\\
+		$w_{i,j}$=maximum number of trees that can be harvested from forest $i$ in year $j$.\\
+		\\
+		\\
 		\begin{tikzpicture}
 				\node[circle,draw, minimum size=1cm] (s) at  (0,0) {s};
 				\node[circle,draw, minimum size=1cm] (k1) at  (2,4)  {$K_1$};
@@ -33,10 +36,10 @@ trees sold as a network flow problem.}\\
 				\node[circle,draw, minimum size=1cm] (w21) at  (5,-2) {$w_{2,1}$};
 				\node[circle,draw, minimum size=1cm] (w22) at  (5,-5)  {$w_{2,2}$};
 				\node[circle,draw, minimum size=1cm] (w23) at  (5,-8)  {$w_{2,3}$};
-				\node[circle,draw, minimum size=1cm] (y1) at  (14,2)  {$Y_1$};
-				\node[circle,draw, minimum size=1cm] (y2) at  (14,0)  {$Y_2$};
-				\node[circle,draw, minimum size=1cm] (y3) at  (14,-2)  {$Y_3$};
-				\node[circle,draw, minimum size=1cm] (t) at  (17,0)  {$t$};
+				\node[circle,draw, minimum size=1cm] (y1) at  (13.8,2)  {$Y_1$};
+				\node[circle,draw, minimum size=1cm] (y2) at  (13.8,0)  {$Y_2$};
+				\node[circle,draw, minimum size=1cm] (y3) at  (13.8,-2)  {$Y_3$};
+				\node[circle,draw, minimum size=1cm] (t) at  (16.5,0)  {$t$};
 				\draw (s) -- (k1) node [sloped,midway, fill=white] {$\tau_1=12$};
 				\draw (s) -- (k2) node [sloped,midway, fill=white] {$\tau_2=8$};
 				\draw (k1) -- (w11) node [sloped,midway, fill=white] {$w_{1,1}=4$};
@@ -73,11 +76,11 @@ trees sold as a network flow problem.}\\
 		
 	Given the above, we can construct this as a network flow problem in the following order from source $s$ to sink $t$.
 	\begin{enumerate}
-	\item From our source, for every forest i, add an edge to a respective $k_1$,...,$k_i$ with weight $\tau_i$. This enforces the maximum overall harvest for each forest represented by $\tau_k$. Given this is a restraint on our entire harvest across all years, we place this as the first constraint from the source to ensure no more than this amount of trees can enter our network flow.
+	\item From our source, for every forest i, add an edge to a respective $k_1$,...,$k_i$ with weight $\tau_i$. This enforces the maximum overall harvest for each forest represented by $\tau_k$. Given this is a restraint on our entire harvest across all years, we place this as the first constraint from the source to our first set of edges to ensure no more than this amount of trees can enter our network flow.
 	\item From each $k_i$ node (each i forest), add an edge to a respective $w_{i,j}$ node for each year j with edge weight $w_{i,j}$: the number of Christmas trees maturing in forest $i$, year $j$. This step ensures that we are bounded by the maximum tree harvest for each forest in each year whilst not exceeding for any forest, the maximum amount of harvest across all years.
-	\item From each $w_{i,j}$ node, add an edge to a respective $y_i$ node with edge weight $w_{i,j}$. This concentrates our maximum yield from a given field and year to their respective years.
-	\item From each $w_{i,j}$ node, for its given $\delta_i$ value z, add an edge to its respective $y_{i+(z-1)}$ node with edge weight $w_{i,j}$. That is, for a given $w_{i,j}$ node with $\delta_i$ value 3, add an edge to $y_2$ and $y_3$ with edge weight $w_{i,j}$. This allows any excess harvest from year $i$ that was held off market to prevent flooding it, to be used in following years bounded by their expected lifetime given by $\delta_i$ and the following final constraint:.
-	\item For each $y_i$ node, add an edge to $t$ with edge weight $u_i$. This bound ensures the final constraint before going to market that no more than $u_i$ trees are sold in any given year $y_i$ to prevent flooding the market. Given the previous step, however, any excess can be redistributed into later years to achieve a maximum number of trees sold schedule.
+	\item From each $w_{i,j}$ node, add an edge to a respective $Y_i$ node with edge weight $w_{i,j}$. This concentrates our maximum yield from a given field and year to their respective years.
+	\item From each $w_{i,j}$ node, for its given $\delta_i$ value z, add an edge to its respective $Y_{i+(z-1)}$ node with edge weight $w_{i,j}$. That is, for a given $w_{i,j}$ node with $\delta_i$ value 2, add an edge to $Y_{i+1}$ with edge weight $w_{i,j}$. For this example, we add an edge from $w_{1,1}$ to $Y_2$, $w_{1,2}$ to $Y_3$, $w_{2,1}$ to $Y_2$ and $w_{2,2}$ to $Y_3$. This allows any excess harvest from year $i$ that was held off market to prevent flooding it, to be used in following years bounded by their expected lifetime given by $\delta_i$, such that excess from year 1 can be used in year 2 and excess from year 2 can be used in year 3. We then have the following final constraint:
+	\item For each $Y_i$ node, add an edge to $t$ with edge weight $u_i$. This bound ensures the final constraint before going to market that no more than $u_i$ trees are sold in any given year $Y_i$ to prevent flooding the market. Given the previous step, however, any excess can be redistributed into later years to achieve a maximum number of trees sold schedule.
 	\end{enumerate}
 	With the above network flow complete, running Ford-Fulkerson's algorithm to find the max flow will return the maximum flow of this network and thus the value of an optimal cutting schedule with maximum trees sold over the entire Y years.
 	\end{enumerate}
@@ -90,6 +93,10 @@ trees sold as a network flow problem.}\\
 		$i$=forest number\\
 		$Y$=year\\
 		$K$=forest\\
+		$w_{i,j}$=maximum number of trees that can be harvested from forest $i$ in year $j$.\\
+		$\delta_i-1$=representation of adding an edge from $w_{i,j}$ to $Y_{i+1}$ for each year in $\delta_{i-1}$\\
+		\\
+		\\
 		\\
 		\begin{tikzpicture}
 				\node[circle,draw, minimum size=1cm] (s) at  (0,0) {s};
@@ -101,10 +108,10 @@ trees sold as a network flow problem.}\\
 				\node[circle,draw, minimum size=1cm] (w21) at  (5,-2) {$w_{i,1}$};
 				\node[circle,draw, minimum size=1cm] (w22) at  (5,-5)  {$w_{i,j-1}$};
 				\node[circle,draw, minimum size=1cm] (w23) at  (5,-8)  {$w_{i,j}$};
-				\node[circle,draw, minimum size=1cm] (y1) at  (14,2)  {$Y_1$};
-				\node[circle,draw, minimum size=1cm] (y2) at  (14,0)  {$Y_{j-1}$};
-				\node[circle,draw, minimum size=1cm] (y3) at  (14,-2)  {$Y_j$};
-				\node[circle,draw, minimum size=1cm] (t) at  (17,0)  {$t$};
+				\node[circle,draw, minimum size=1cm] (y1) at  (13.8,2)  {$Y_1$};
+				\node[circle,draw, minimum size=1cm] (y2) at  (13.8,0)  {$Y_{j-1}$};
+				\node[circle,draw, minimum size=1cm] (y3) at  (13.8,-2)  {$Y_j$};
+				\node[circle,draw, minimum size=1cm] (t) at  (16.5,0)  {$t$};
 				\draw (s) -- (k1) node [sloped,midway, fill=white] {$\tau_1$};
 				\draw (s) -- (k2) node [sloped,midway, fill=white] {$\tau_i$};
 				\draw (k1) -- (w11) node [sloped,midway, fill=white] {$w_{1,1}$};
@@ -127,6 +134,7 @@ trees sold as a network flow problem.}\\
 				\draw (y2) -- (t) node [sloped,midway, fill=white] {$u_{j-1}$};
 				\draw (y3) -- (t) node [sloped,midway, fill=white] {$u_j$};
 			\end{tikzpicture}\\
+		\newpage
 		\item \textbf{Argue why your formulation is correct.}\\
 		In this case, we have several constraints which will contribute to the design of our flow network, these are:
 		\begin{itemize}
@@ -140,18 +148,28 @@ trees sold as a network flow problem.}\\
 		
 	Given the above, we can construct this as a network flow problem in the following order from source $s$ to sink $t$.
 	\begin{enumerate}
-	\item From our source, for every forest i, add an edge to a respective $k_1$,...,$k_i$ with weight $\tau_i$. This enforces the maximum overall harvest for each forest represented by $\tau_k$. Given this is a restraint on our entire harvest across all years, we place this as the first constraint from the source to ensure no more than this amount of trees can enter our network flow.
+	\item From our source, for every forest i, add an edge to a respective $k_1$,...,$k_i$ with weight $\tau_i$. This enforces the maximum overall harvest for each forest represented by $\tau_k$. Given this is a restraint on our entire harvest across all years, we place this as the first constraint from the source to our first set of edges to ensure no more than this amount of trees can enter our network flow.
 	\item From each $k_i$ node (each i forest), add an edge to a respective $w_{i,j}$ node for each year j with edge weight $w_{i,j}$: the number of Christmas trees maturing in forest $i$, year $j$. This step ensures that we are bounded by the maximum tree harvest for each forest in each year whilst not exceeding for any forest, the maximum amount of harvest across all years.
-	\item From each $w_{i,j}$ node, add an edge to a respective $y_i$ node with edge weight $w_{i,j}$. This concentrates our maximum yield from a given field and year to their respective years.
-	\item From each $w_{i,j}$ node, for its given $\delta_i$ value z, add an edge to its respective $y_{i+(z-1)}$ node with edge weight $w_{i,j}$. That is, for a given $w_{i,j}$ node with $\delta_i$ value 3, add an edge to $y_2$ and $y_3$ with edge weight $w_{i,j}$. This allows any excess harvest from year $i$ that was held off market to prevent flooding it, to be used in following years bounded by their expected lifetime given by $\delta_i$ and the following final constraint:.
-	\item For each $y_i$ node, add an edge to $t$ with edge weight $u_i$. This bound ensures the final constraint before going to market that no more than $u_i$ trees are sold in any given year $y_i$ to prevent flooding the market. Given the previous step, however, any excess can be redistributed into later years to achieve a maximum number of trees sold schedule.
+	\item From each $w_{i,j}$ node, add an edge to a respective $Y_i$ node with edge weight $w_{i,j}$. This concentrates our maximum yield from a given field and year to their respective years.
+	\item From each $w_{i,j}$ node, for its given $\delta_i$ value z, add an edge to its respective $Y_{i+(z-1)}$ node with edge weight $w_{i,j}$. That is, for a given $w_{i,j}$ node with, for example, $\delta_i$ value 3, add an edge to $Y_2$ and $Y_3$ with edge weight $w_{i,j}$. This allows any excess harvest from year $i$ that was held off market to prevent flooding it, to be used in following years bounded by their expected lifetime given by $\delta_i$ and the following final constraint:.
+	\item For each $Y_i$ node, add an edge to $t$ with edge weight $u_i$. This bound ensures the final constraint before going to market that no more than $u_i$ trees are sold in any given year $Y_i$ to prevent flooding the market. Given the previous step, however, any excess can be redistributed into later years to achieve a maximum number of trees sold schedule.
 	\end{enumerate}
 	With the above network flow complete, running Ford-Fulkerson's algorithm to find the max flow will return the maximum flow of this network and thus the value of an optimal cutting schedule with maximum trees sold over the entire Y years.
 	
-		\item \textbf{Prove an upper bound on the time complexity of your algorithm.}\\
-		After reading in our data, we begin the algorithm. Our first for loop runs k times. The for loop within that runs Y times. The for loop within that runs $\delta_i$ times. Overall this results in a run time of $O(kY\delta_i)$
+		\item \textbf{Prove an upper bound on the time complexity of your algorithm.}
+		\begin{enumerate}
+		\item \textbf{Building the network flow}\\ 
+		Our first for loop runs for every forest, i.e. k times, leading to a time complexity of $O(k)$. The for loop within that runs for every year, i.e. Y times, leading to a time complexity of $O(Y)$. The for loop within that runs for the size of delta for each year. Given delta cannot be larger than the amount of years, we say this will run at most Y times, hence a time complexity of $O(Y)$. Overall this results in a run time of $O(k)\times O(Y)\times (Y) = O(kY^2)$.
+		\item \textbf{Running Ford-Fulkerson}\\
+		As per the assignment specification, this algorithm correctly returns the maximum flow of the given flow network G in $O(m^2 log C)$ time. $m$ is the number of edges in the input flow network, which is bounded by $kY^2$, and C is the maximum flow in G. Therefore, this results in an overall time of $O(kY^2 log C)$
+		\item \textbf{Printing the max flow}\\
+		Returning a tuple value runs in $O(1)$ time.
+		\end{enumerate}
+		In summary, we observe the overall time complexity as:\\
+		\[ O(kY^2) + O(kY^2 log C + O(1)\]
+		\[ = O(kY^2 log C) \]
 		\end{enumerate}
 
 \end{enumerate}
-\end{document}  \documentclass[fontsize=12pt, paper=a4]{scrlttr2}
+\end{document}
 

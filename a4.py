@@ -7,7 +7,6 @@ w = [ [ int(input()) for _ in range (num_years) ] for _ in range(num_forests) ]
 u = [ int(input()) for _ in range(num_years) ]
 
 g = nx.DiGraph()
-g.add_nodes_from(('s','t'))
 
 for forest in range(num_forests):
 	g.add_edge('s', 'num_forests%d' % (forest), capacity=tau[forest])
